@@ -37,6 +37,7 @@ class _ProjectPageState extends ConsumerState<ProjectPage> {
   late List<String> uniqueStatuses;
   late List<String> uniqueTypes;
   late List<String> uniqueProjectManagers;
+  var filterEnabled=false;
 
   @override
   void initState() {
@@ -275,7 +276,9 @@ class _ProjectPageState extends ConsumerState<ProjectPage> {
 
         return matchesStatus && matchesEnvType && matchesProject && matchesSearch;
       }).toList();
-
+      if(mList?.isNotEmpty??false){
+        filterEnabled=true;
+      }
     });
   }
 
@@ -562,6 +565,7 @@ class _ProjectPageState extends ConsumerState<ProjectPage> {
             const SizedBox(height: 12),
             Flexible(fit: FlexFit.loose, child: _buildListView()),
             PaginationWidget(
+              filterEnabled:filterEnabled,
               currentPage: currentPage,
               totalPages: totalPages,
               totalResults: fullProjectList.length,
@@ -606,9 +610,11 @@ class _ProjectPageState extends ConsumerState<ProjectPage> {
   }
 
   void setFiltersToDefault() {
+    _searchController.clear();
      selectedStatus = "All Status";
      selectedEnvType = "All Types";
      selectedProject = "All Managers";
+     filterEnabled=false;
 
   }
 
@@ -618,6 +624,7 @@ class _ProjectPageState extends ConsumerState<ProjectPage> {
       selectedProject = "All Managers";
       selectedEnvType = "All Types";
       selectedStatus = "All Status";
+      filterEnabled=false;
       mList = fullProjectList.sublist(0, min(10, fullProjectList.length));
     });
   }

@@ -51,7 +51,7 @@ class ProjectModel {
       projectId: json['projectId'] ?? '',
       projectName: json['projectName'] ?? 'Unknown',
       projectManager: json['projectManager'] ?? 'Unknown',
-      environment: json['environment_name'] ?? 'Unknown',
+      environment: json['environment_name'] ?? json['environmentName'] ??'Unknown',
       status: json['status'] ?? 'Unknown',
       startDate: json['start_date'] ?? '',
       endDate: json['end_date'] ?? '',

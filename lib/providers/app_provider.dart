@@ -17,7 +17,8 @@ import 'package:prudential_tems/config/api_config.dart';
 
 // Dio Provider for Dependency Injection
 final dioProvider = Provider<Dio>((ref) {
-  return Dio(BaseOptions(baseUrl: ApiConfig.baseUrl));
+
+  return Dio(BaseOptions(baseUrl: ApiConfig.baseUrl,));
 });
 
 final environmentRepositoryProvider = Provider((ref) {

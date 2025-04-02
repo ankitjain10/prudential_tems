@@ -60,7 +60,7 @@ class DropdownWithOffsetState extends State<DropdownWithOffset> {
               mainAxisSize: MainAxisSize.min,
               children: widget.options.map(
                     (val) => ListTile(
-                  title: SelectableText(val),
+                  title: Text(val),
                   onTap: () {
                     setState(() => selectedValue = val);
                     widget.onChanged(val);
@@ -114,7 +114,12 @@ class DropdownWithOffsetState extends State<DropdownWithOffset> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              SelectableText(selectedValue ?? widget.options.first),
+              Expanded(
+                child: Text(selectedValue ?? widget.options.first,
+                  overflow: TextOverflow.ellipsis, // Adds ellipsis to prevent overflow
+                  maxLines: 1, // Ensures single-line truncation
+                  softWrap: false,),
+              ),
               const Icon(Icons.arrow_drop_down),
             ],
           ),

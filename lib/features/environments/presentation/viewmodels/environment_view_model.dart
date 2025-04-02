@@ -4,7 +4,12 @@ import '../../../home/domain/usecases/users_usecase.dart';
 import '../../data/models/environment_api_response.dart';
 import '../../domain/usecases/environment_usecase.dart';
 
-final environmentViewModelProvider =
+final environmentViewModelProvider = FutureProvider<List<Environment>>((ref) async {
+  final repository = ref.watch(fetchEnvironmentUseCaseProvider);
+  return repository.fetchAllEnvironments();
+});
+
+final environmentViewModelStateNotifierProvider =
 StateNotifierProvider<EnvironmentProvider, AsyncValue<List<Environment>>>((ref) {
   final EnvironmentUseCase fetchUsersUseCase = ref.read(
     fetchEnvironmentUseCaseProvider,

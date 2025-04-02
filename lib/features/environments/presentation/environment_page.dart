@@ -2,15 +2,15 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prudential_tems/features/environments/presentation/viewmodels/environment_view_model.dart';
 import 'package:prudential_tems/features/environments/presentation/widgets/custom_dropdown.dart';
 import 'package:prudential_tems/features/environments/presentation/widgets/custom_header.dart';
 import 'package:prudential_tems/features/environments/presentation/widgets/custom_table_cell.dart';
+import 'package:prudential_tems/features/environments/presentation/widgets/pagination_widget.dart';
 
 import '../../../core/utils/app_utils.dart';
 import '../../../core/utils/utils.dart';
 import '../../../providers/app_provider.dart';
-import '../../../test_data.dart';
-import '../../projects/widgets/pagination_widget.dart';
 import '../data/models/environment_api_response.dart';
 
 class EnvironmentPage extends ConsumerStatefulWidget {
@@ -53,6 +53,8 @@ class _EnvironmentPageState extends ConsumerState<EnvironmentPage> {
   ];
   bool _isFirstRun = true;
 
+  var filterEnabled=false;
+
   @override
   void initState() {
     super.initState();
@@ -67,7 +69,7 @@ class _EnvironmentPageState extends ConsumerState<EnvironmentPage> {
 
   @override
   Widget build(BuildContext context) {
-    final environmentData = ref.watch(environmentProvider);
+    final environmentData = ref.watch(environmentViewModelProvider);
 
     return environmentData.when(
       data: (environmentApiResponse) {
@@ -361,6 +363,10 @@ class _EnvironmentPageState extends ConsumerState<EnvironmentPage> {
 
         return matchesStatus && matchesEnvType && matchesProject && matchesSearch;
       }).toList();
+      if(mList?.isNotEmpty??false){
+        filterEnabled=true;
+      }
+
 
     });
   }
@@ -490,27 +496,25 @@ class _EnvironmentPageState extends ConsumerState<EnvironmentPage> {
             const SizedBox(height: 12),
             Flexible(fit: FlexFit.loose, child: _buildListView()),
             PaginationWidget(
+              filterEnabled:filterEnabled,
               currentPage: currentPage,
               totalPages: totalPages,
               totalResults: fullEnvironmentList.length,
               resultsPerPage: 10,
               onPageChanged: (newPage) {
-                print("Switched to page: $newPage");
                 setState(() {
                   currentPage = newPage;
-                  if (currentPage == 1) {
-                    mList = fullEnvironmentList.sublist(
-                      (currentPage - 1) * 10,
-                      (currentPage) * 10,
-                    );
-                  } else if (currentPage == totalPages) {
-                    mList = fullEnvironmentList.sublist((currentPage - 1) * 10 + 1);
-                  } else {
-                    mList = fullEnvironmentList.sublist(
-                      (currentPage - 1) * 10 + 1,
-                      (currentPage) * 10,
-                    );
+
+                  int startIndex = (currentPage - 1) * 10;
+                  int endIndex = startIndex + 10;
+
+                  // Ensure the endIndex does not exceed the list length
+                  if (endIndex > fullEnvironmentList.length) {
+                    endIndex = fullEnvironmentList.length;
                   }
+
+                  mList = fullEnvironmentList.sublist(startIndex, endIndex);
+
                 });
               },
             ),
@@ -532,9 +536,11 @@ class _EnvironmentPageState extends ConsumerState<EnvironmentPage> {
   }
 
   void setFiltersToDefault() {
+    _searchController.clear();
      selectedStatus = "All Status";
      selectedEnvType = "All Types";
      selectedProject = "All Projects";
+    filterEnabled=false;
   }
 
   void _clearFilters() {
@@ -543,6 +549,7 @@ class _EnvironmentPageState extends ConsumerState<EnvironmentPage> {
       selectedStatus = "All Status";
       selectedEnvType = "All Types";
       selectedProject = "All Projects";
+      filterEnabled=false;
       mList = fullEnvironmentList.sublist(0, min(10, fullEnvironmentList.length));
     });
   }

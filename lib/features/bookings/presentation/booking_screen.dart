@@ -58,6 +58,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
   bool _isFirstRun = true;
 
+  bool filterEnabled=false;
+
   @override
   void initState() {
     super.initState();
@@ -158,6 +160,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       selectedProject = "All Projects";
       selectedEnvType = "All Types";
       selectedStatus = "All Status";
+      filterEnabled=false;
       bookingList = fullBookingList.sublist(0, min(10, fullBookingList.length));
     });
   }
@@ -322,6 +325,10 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
         return matchesStatus && matchesEnvType && matchesProject && matchesSearch;
       }).toList();
+
+      if(bookingList?.isNotEmpty??false){
+        filterEnabled=true;
+      }
     });
   }
 
@@ -398,6 +405,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
             const SizedBox(height: 12),
             Flexible(fit: FlexFit.loose, child: _buildListView()),
             PaginationWidget(
+              filterEnabled:filterEnabled,
               currentPage: currentPage,
               totalPages: totalPages,
               totalResults: fullBookingList.length,
@@ -406,19 +414,17 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                 // print("Switched to page: $newPage");
                 setState(() {
                   currentPage = newPage;
-                  if (currentPage == 1) {
-                    bookingList = fullBookingList.sublist(
-                      (currentPage - 1) * 10,
-                      (currentPage) * 10,
-                    );
-                  } else if (currentPage == totalPages) {
-                    bookingList = fullBookingList.sublist((currentPage - 1) * 10 + 1);
-                  } else {
-                    bookingList = fullBookingList.sublist(
-                      (currentPage - 1) * 10 + 1,
-                      (currentPage) * 10,
-                    );
+
+                  int startIndex = (currentPage - 1) * 10;
+                  int endIndex = startIndex + 10;
+
+                  // Ensure we don't go out of bounds
+                  if (endIndex > fullBookingList.length) {
+                    endIndex = fullBookingList.length;
                   }
+
+                  bookingList = fullBookingList.sublist(startIndex, endIndex);
+
                 });
               },
             ),
@@ -442,9 +448,11 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   }
 
   void setFiltersToDefault() {
+     _searchController.clear();
      selectedStatus = "All Status";
      selectedEnvType = "All Types";
      selectedProject = "All Projects";
+     filterEnabled=false;
 
   }
 
