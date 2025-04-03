@@ -22,7 +22,6 @@ class BookingScreen extends ConsumerStatefulWidget {
   ConsumerState<BookingScreen> createState() => _BookingScreenState();
 }
 
-
 class _BookingScreenState extends ConsumerState<BookingScreen> {
   // Generate dummy data list
   final TextEditingController _searchController = TextEditingController();
@@ -32,11 +31,11 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   String selectedEnvType = "All Types";
   String selectedProject = "All Projects";
 
-  List<Booking> fullBookingList=[];
+  List<Booking> fullBookingList = [];
   late List<Booking>? bookingList;
 
   int currentPage = 1;
-  int totalPages=0;
+  int totalPages = 0;
   late List<String> uniqueStatuses;
   late List<String> uniqueTypes;
   late List<String> uniqueProjects;
@@ -58,12 +57,14 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
   bool _isFirstRun = true;
 
-  bool filterEnabled=false;
+  bool filterEnabled = false;
 
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(_filterTable); // ✅ Listen for text input changes
+    _searchController.addListener(
+      _filterTable,
+    ); // ✅ Listen for text input changes
   }
 
   @override
@@ -78,17 +79,21 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
     return bookingData.when(
       data: (bookingData) {
-        // debugPrint('build called');
+        debugPrint('build called');
         if (_isFirstRun) {
+          debugPrint('_isFirstRun');
+
           firstRunMethod(bookingData);
-          _isFirstRun = false; // ✅ Prevents calling again
+          _isFirstRun = false;
         }
         return _buildContent();
       },
-      loading: () => const Center(child: CircularProgressIndicator()), // Show Loader
-      error: (error, stackTrace) => Center(child: Text('Error: $error')), // Show Error
+      loading: () => const Center(child: CircularProgressIndicator()),
+      // Show Loader
+      error:
+          (error, stackTrace) =>
+              Center(child: Text('Error: $error')), // Show Error
     );
-
   }
 
   Widget _buildFilters() {
@@ -115,31 +120,44 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
             ),
           ),
           const SizedBox(width: 12),
-          CustomDropdown(label: "Project",options:  uniqueProjects, onChanged:(val) {
-            setState(() {
-              selectedProject = val!;
-              _filterTable();
-            });
-          }),
+          CustomDropdown(
+            label: "Project",
+            options: uniqueProjects,
+            onChanged: (val) {
+              setState(() {
+                selectedProject = val!;
+                _filterTable();
+              });
+            },
+          ),
           const SizedBox(width: 12),
-          CustomDropdown(label: "Environment Type",options:  uniqueTypes, onChanged:(val) {
-            setState(() {
-              selectedEnvType = val!;
-              _filterTable();
-            });
-          }),
+          CustomDropdown(
+            label: "Environment Type",
+            options: uniqueTypes,
+            onChanged: (val) {
+              setState(() {
+                selectedEnvType = val!;
+                _filterTable();
+              });
+            },
+          ),
           const SizedBox(width: 12),
-          CustomDropdown(label: "Status",options:  uniqueStatuses, onChanged: (val) {
-            setState(() {
-              selectedStatus = val!;
-              _filterTable();
-            });
-          }),
+          CustomDropdown(
+            label: "Status",
+            options: uniqueStatuses,
+            onChanged: (val) {
+              setState(() {
+                selectedStatus = val!;
+                _filterTable();
+              });
+            },
+          ),
           const SizedBox(width: 12),
+
           /// 🔹 Clear Filters Button
           ElevatedButton.icon(
             onPressed: _clearFilters,
-            icon: const Icon(Icons.clear, size: 20,color: Colors.white,),
+            icon: const Icon(Icons.clear, size: 20, color: Colors.white),
             label: const Text("Clear"),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.redAccent,
@@ -160,10 +178,11 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       selectedProject = "All Projects";
       selectedEnvType = "All Types";
       selectedStatus = "All Status";
-      filterEnabled=false;
+      filterEnabled = false;
       bookingList = fullBookingList.sublist(0, min(10, fullBookingList.length));
     });
   }
+
   /// Builds a ListView wrapped in a Card with rounded corners and a white background.
   Widget _buildListView() {
     return Card(
@@ -247,7 +266,6 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
             },
             flex: 1,
           ),
-
         ],
       ),
     );
@@ -266,17 +284,19 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       ),
       child: Row(
         children: [
-          CustomTableCell(text:env.projectName),
-          CustomTableCell(text:env.environmentName),
-          CustomTableCell(text:formatDate(env.startDate)),
-          CustomTableCell(text:formatDate(env.endDate)),
-          CustomTableCell(text:env.status, isStatus: true,color: StatusUtils.getStatusColor(env.status)),
+          CustomTableCell(text: env.projectName),
+          CustomTableCell(text: env.environmentName),
+          CustomTableCell(text: formatDate(env.startDate)),
+          CustomTableCell(text: formatDate(env.endDate)),
+          CustomTableCell(
+            text: env.status,
+            isStatus: true,
+            color: StatusUtils.getStatusColor(env.status),
+          ),
         ],
       ),
     );
   }
-
-
 
   void _sortTable({required String param, bool isAscending = false}) {
     final order = isAscending ? 1 : -1;
@@ -296,7 +316,10 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
               dateFormat.parse(b.startDate),
             );
           case 'endDate':
-            return compare(dateFormat.parse(a.endDate), dateFormat.parse(b.endDate));
+            return compare(
+              dateFormat.parse(a.endDate),
+              dateFormat.parse(b.endDate),
+            );
           case 'status':
             return compare(a.status, b.status);
           default:
@@ -308,34 +331,42 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     });
   }
 
-
   void _filterTable() {
     String query = _searchController.text.toLowerCase();
     List<Booking> copiedList = fullBookingList.map((p) => p.copy()).toList();
 
     setState(() {
-      bookingList = copiedList.where((env) {
-        final matchesStatus = selectedStatus == "All Status" || env.status == selectedStatus;
-        final matchesEnvType = selectedEnvType == "All Types" || env.environmentName == selectedEnvType;
-        final matchesProject = selectedProject == "All Projects" || env.projectName == selectedProject;
-        final matchesSearch = query.isEmpty ||
-            env.projectName.toLowerCase().contains(query) /*||
+      bookingList =
+          copiedList.where((env) {
+            final matchesStatus =
+                selectedStatus == "All Status" || env.status == selectedStatus;
+            final matchesEnvType =
+                selectedEnvType == "All Types" ||
+                env.environmentName == selectedEnvType;
+            final matchesProject =
+                selectedProject == "All Projects" ||
+                env.projectName == selectedProject;
+            final matchesSearch =
+                query.isEmpty ||
+                env.projectName.toLowerCase().contains(query) /*||
             env.environmentName.toLowerCase().contains(query) ||
             env.status.toLowerCase().contains(query)*/;
 
-        return matchesStatus && matchesEnvType && matchesProject && matchesSearch;
-      }).toList();
+            return matchesStatus &&
+                matchesEnvType &&
+                matchesProject &&
+                matchesSearch;
+          }).toList();
 
-      if(bookingList?.isNotEmpty??false){
-        filterEnabled=true;
+      if (bookingList?.isNotEmpty ?? false) {
+        filterEnabled = true;
       }
     });
   }
 
-
   // Displays the new booking form in a side sheet
-  void _showNewBookingSideSheet(BuildContext context) {
-    WoltModalSheet.show(
+  Future<void> _showNewBookingSideSheet(BuildContext context) async {
+    final result = await WoltModalSheet.show(
       context: context,
       pageListBuilder:
           (context) => [
@@ -349,7 +380,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                 onPressed:
                     () => Navigator.pop(context), // Closes the side sheet
               ),
-              child: NewBookingSheet(fullBookingList:fullBookingList),
+              child: NewBookingSheet(fullBookingList: fullBookingList),
             ),
           ],
       enableDrag: false, // Prevents dragging to close
@@ -361,23 +392,51 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
         );
       }, // Displays as a side sheet
     );
+
+    // Process the returned result
+    if (result != null) {
+      debugPrint("Received result: $result");
+      if (result is bool) {
+        if (result) {
+          debugPrint("result is true");
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Booking submitted successfully!")),
+          );
+          // Call the refresh function
+          _refreshBookingData();
+        } else {
+          debugPrint("result is false");
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Booking submitted failed!")),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _refreshBookingData() async {
+    await  ref.refresh(bookingProvider.future); //  Immediately refresh data
+    setState(() {
+      _isFirstRun = true;
+    });
+    debugPrint("_refreshBookingData called");
   }
 
   // Builds the weekly calendar view
   Widget _buildCalendarView(BuildContext context) {
-
-    return WeekCalendarPage(fullBookingList: fullBookingList,onPressed:(){
-      _showNewBookingSideSheet(
-        context,
-      );
-    },
-      minDays:-30 ,maxDays: 30,
+    return WeekCalendarPage(
+      fullBookingList: fullBookingList,
+      onPressed: () {
+        _showNewBookingSideSheet(context);
+      },
+      minDays: -30,
+      maxDays: 30,
     );
   }
 
   Widget _buildContent() {
     return SingleChildScrollView(
-      child:  Container(
+      child: Container(
         color: Colors.grey[100],
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -393,9 +452,11 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
               padding: const EdgeInsets.only(left: 4.0),
               child: SelectableText(
                 'Recent Bookings',
-                style: TextStyle(color: Colors.black,
+                style: TextStyle(
+                  color: Colors.black,
                   fontSize: 18,
-                  fontWeight: FontWeight.bold,),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             SizedBox(height: 12),
@@ -405,13 +466,13 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
             const SizedBox(height: 12),
             Flexible(fit: FlexFit.loose, child: _buildListView()),
             PaginationWidget(
-              filterEnabled:filterEnabled,
+              filterEnabled: filterEnabled,
               currentPage: currentPage,
               totalPages: totalPages,
               totalResults: fullBookingList.length,
               resultsPerPage: 10,
               onPageChanged: (newPage) {
-                // print("Switched to page: $newPage");
+                // debugPrint("Switched to page: $newPage");
                 setState(() {
                   currentPage = newPage;
 
@@ -424,16 +485,13 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                   }
 
                   bookingList = fullBookingList.sublist(startIndex, endIndex);
-
                 });
               },
             ),
-
           ],
         ),
       ),
     );
-
   }
 
   void firstRunMethod(bookingData) {
@@ -448,16 +506,10 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   }
 
   void setFiltersToDefault() {
-     _searchController.clear();
-     selectedStatus = "All Status";
-     selectedEnvType = "All Types";
-     selectedProject = "All Projects";
-     filterEnabled=false;
-
+    _searchController.clear();
+    selectedStatus = "All Status";
+    selectedEnvType = "All Types";
+    selectedProject = "All Projects";
+    filterEnabled = false;
   }
-
-
-
 }
-
-

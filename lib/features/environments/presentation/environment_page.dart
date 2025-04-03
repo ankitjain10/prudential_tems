@@ -73,8 +73,7 @@ class _EnvironmentPageState extends ConsumerState<EnvironmentPage> {
 
     return environmentData.when(
       data: (environmentApiResponse) {
-        if (environmentApiResponse==null||
-        environmentApiResponse==null||environmentApiResponse.isEmpty) {
+        if (environmentApiResponse==null||environmentApiResponse.isEmpty) {
           return _buildNoDataMessage(); // Handle empty data case
         }
 

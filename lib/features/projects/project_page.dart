@@ -12,7 +12,6 @@ import 'package:prudential_tems/features/environments/presentation/widgets/custo
 
 import '../../core/utils/utils.dart';
 import '../../providers/app_provider.dart';
-import '../environments/presentation/widgets/custom_dropdown.dart';
 import 'data/models/project_api_response.dart';
 
 class ProjectPage extends ConsumerStatefulWidget {

@@ -1,5 +1,6 @@
 
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:prudential_tems/features/bookings/domain/entity/booking_form.dart';
 
 import '../models/booking_api_response.dart';
@@ -19,6 +20,8 @@ class BookingRepository {
         if (data == null || data.isEmpty) {
           throw Exception("Received empty response from the server.");
         }
+        debugPrint('BookingApiResponse fetched');
+
         return BookingApiResponse.fromJson(data);
       } else {
         throw Exception("Failed to load environments");
@@ -32,6 +35,7 @@ class BookingRepository {
 
   Future<Booking> createBooking(BookingForm booking) async {
     try {
+      debugPrint('booking form : ${booking.toJson()}');
       Response response = await _dio.post('/booking/create',
           options: Options(headers: {
             'accept': '*/*',

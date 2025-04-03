@@ -180,8 +180,7 @@ class _NewBookingSheetState extends ConsumerState<NewBookingSheet> {
           readOnly: true,
           onTap: () {
             _showDatePickerDialog(context);
-            /*_selectDate(context, controller)*/
-          },
+                      },
           decoration: InputDecoration(
             hintText: "MM/DD/YYYY",
             suffixIcon: const Icon(Icons.calendar_today),
@@ -285,7 +284,7 @@ class _NewBookingSheetState extends ConsumerState<NewBookingSheet> {
             const SizedBox(height: 8),
             // Cancel button
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(context, false),
               style: TextButton.styleFrom(
                 backgroundColor: Colors.grey[800],
                 foregroundColor: Colors.white,
@@ -335,9 +334,9 @@ class _NewBookingSheetState extends ConsumerState<NewBookingSheet> {
               Navigator.of(dialogContext!).pop();
             }
 
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Booking submitted successfully!")),
-            );
+            // ScaffoldMessenger.of(context).showSnackBar(
+            //   const SnackBar(content: Text("Booking submitted successfully!")),
+            // );
 
             // Close the sheet and return success
             if (context.mounted) {
@@ -468,8 +467,8 @@ class _NewBookingSheetState extends ConsumerState<NewBookingSheet> {
                   view: DateRangePickerView.month,
                   selectionMode: DateRangePickerSelectionMode.range,
                   initialSelectedRange: PickerDateRange(
-                    _selectedRange?.startDate ?? today,
-                    _selectedRange?.endDate ?? today,
+                    _selectedRange?.startDate ,
+                    _selectedRange?.endDate,
                   ),
                   minDate: today,
                   maxDate: endOfYear,
@@ -529,7 +528,9 @@ class _NewBookingSheetState extends ConsumerState<NewBookingSheet> {
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () {
+              Navigator.pop(context, false);
+            } ,
                   child: Text("Cancel"),
                 ),
                 ElevatedButton(

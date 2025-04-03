@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../home/domain/usecases/users_usecase.dart';
 import '../../data/models/environment_api_response.dart';
 import '../../domain/usecases/environment_usecase.dart';
 
