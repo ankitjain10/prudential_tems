@@ -1,6 +1,4 @@
 # prudential_tems
-=======
-# prudential_tems
 
 A new Flutter project.
 
